@@ -1,25 +1,45 @@
-jobs:
-  build:
-    docker:
-      -
-        image: "circleci/buildpack-deps:stretch"
-    environment:
+version: 2
+jobs: 
+  build: 
+    docker: 
+      - image: "circleci/buildpack-deps:stretch"
+    environment: 
       IMAGE_NAME: tamaslakatos/building-on-ci
-    steps:
+    steps: 
       - checkout
       - setup_remote_docker
-      -
-        run:
+      - 
+        run: 
           command: "docker build -t $IMAGE_NAME:latest ."
           name: "Build Docker image"
-version: 2
-workflows:
-  build-master:
-    jobs:
-      -
-        build:
-          filters:
-            branches:
+  publish-latest: 
+    context: dockerhub
+    docker: 
+      - image: "circleci/buildpack-deps:stretch"
+    environment: 
+      IMAGE_NAME: building-on-ci
+      DOCKERHUB_PASS: 
+    steps: 
+      - setup_remote_docker
+      - 
+        run: 
+          command: |
+              echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+              docker push $IMAGE_NAME:latest
+          name: "Publish Docker Image to Docker Hub"
+workflows: 
+  build-master: 
+    jobs: 
+      - 
+        build: 
+          filters: 
+            branches: 
               only: master
-  version: 2
+      - 
+        publish-latest: 
+          filters: 
+            branches: 
+              only: master
+          requires: 
+            - build
 
