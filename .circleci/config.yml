@@ -46,6 +46,8 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+            branches:
+              ignore: /.*/
       - publish-tag:
           context: dockerhub
           requires:
@@ -53,3 +55,5 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+            branches:
+              ignore: /.*/
